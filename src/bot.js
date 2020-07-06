@@ -29,6 +29,30 @@ app.get("/", (req, res) => {
   res.status(200).json({success: "true", message: "Operating regularly!"})
 })
 
+app.get("/api/v1/verification/:user/:code", (req, res) => {
+  console.log(req.params.user)
+  console.log(req.params.code)
+
+  let codes = JSON.parse(fs.readFileSync("codes.json", "utf8"));
+
+  if (codes[req.params.user].code == "REVOKED") {
+    res.json("Verified")
+    return
+  }
+
+  codes[req.params.user] = {
+     code: req.params.code
+   };
+
+  fs.writeFile("codes.json", JSON.stringify(codes), err => {
+    if (err) {
+      console.log(err)
+    }
+  });
+
+  res.json("Success")
+})
+
 /* Initialise Express */
 
 app.listen(process.env.PORT);
